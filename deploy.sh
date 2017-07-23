@@ -27,6 +27,7 @@ echo $PY_PACKAGE_NAME
 # Extract "something-1.0.tar" into "something" (without 1.0...)
 rm -rf $PY_PACKAGE_NAME
 mkdir $PY_PACKAGE_NAME
+wget ftp://anonymous:anonymous@fade-ftp-service/pub/fade-bucket/$TAR_NAME
 tar -xvf $TAR_NAME -C ./$PY_PACKAGE_NAME
 #tar xf $TAR_NAME
 

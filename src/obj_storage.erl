@@ -5,8 +5,8 @@ download(Uname, Pass, FilePath) ->
     inets:start(),
     {ok, Pid} = inets:start(ftpc, [{host, "fade-ftp-service.cern.ch"}, {port, "21"}]),
     ftp:user(Pid, Uname, Pass),
+    ftp:cd(Pid, "/pub/fade-bucket/"),
     print_remote_info(Pid),
-    ftp:cd(Pid, "pub/fade-bucket"),
     ftp:recv(Pid, FilePath),
     inets:stop(ftpc, Pid).
 
