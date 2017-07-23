@@ -26,14 +26,9 @@ hello(Sid, Env, In) ->
 
 work(TarKey, MainKey, Module, SerKey) ->
     fun() ->
-        download(TarKey),
-        download(SerKey),
         OutSerKey = lists:concat([util:uuid(),".py"]),
         os:cmd(lists:concat(["./deploy.sh ", TarKey, " ", MainKey, " ", Module, " ", SerKey, " ", OutSerKey]))
     end.
-
-download(FilePath) -> 
-    obj_storage:download("anonymous","anonymous@",FilePath).
 
 format(Str,Value) ->
     lists:flatten(io_lib:format(Str,Value)).
