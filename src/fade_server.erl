@@ -6,7 +6,7 @@
 newtask(Sid, Env, In) ->
     {struct,[{"main_key",MainKey},{"tar_key",TarKey},{"module",Module},{"ser_key",SerKey}]} = mochijson:decode(In),
     TId = wpool:submit(work(TarKey,MainKey,Module,SerKey)),
-    RespStr = format("{“tid” : ~s}",[TId]),
+    RespStr = format("{\"tid\" : \"~s\"}",[TId]),
     mod_esi:deliver(Sid, [RespStr]).
 
 result(Sid,Env,In) ->
