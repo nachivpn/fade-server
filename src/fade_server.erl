@@ -33,7 +33,7 @@ work(TarKey, MainKey, Module, SerKey) ->
     end.
 
 download(FilePath) -> 
-    object_storage:download("anonymous","anonymous",FilePath).
+    obj_storage:download("anonymous","anonymous@",FilePath).
 
 format(Str,Value) ->
     lists:flatten(io_lib:format(Str,Value)).
