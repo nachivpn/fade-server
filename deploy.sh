@@ -28,6 +28,7 @@ echo $PY_PACKAGE_NAME
 rm -rf $PY_PACKAGE_NAME
 mkdir $PY_PACKAGE_NAME
 wget ftp://anonymous:anonymous@fade-ftp-service/pub/fade-bucket/$TAR_NAME
+wget ftp://anonymous:anonymous@fade-ftp-service/pub/fade-bucket/$4
 tar -xvf $TAR_NAME -C ./$PY_PACKAGE_NAME
 #tar xf $TAR_NAME
 
