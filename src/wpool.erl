@@ -4,6 +4,7 @@
 
 -record(task, {sid, tid = "", work}).
 
+%% API FUNCTION
 % submit: W() -> Task_Id
 submit(W) ->
     MartinId = spawn_link(
@@ -15,6 +16,21 @@ submit(W) ->
     pool ! {submit_task_req, #task{sid=MartinId, tid=TId, work=W}},
     TId.
 
+%% API FUNCTION
+% get_result: Task_Id -> Result
+get_result(TId) ->
+    MartinId = util:get_pid(TId),
+    MartinId ! {get_task_res, TId, self()},
+    receive
+        {martin_resp, TId, Result} -> Result
+    end.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% INTERNAL FUNCTIONS %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Martin waits for results
 martin() ->
     TId = util:make_id(self()),
     receive
@@ -23,13 +39,6 @@ martin() ->
                 {get_task_res, TId, SId}  -> 
                     SId ! {martin_resp, TId, Result}
             end
-    end.
-
-get_result(TId) ->
-    MartinId = util:get_pid(TId),
-    MartinId ! {get_task_res, TId, self()},
-    receive
-        {martin_resp, TId, Result} -> Result
     end.
 
 % pool master: [{WorkerPid,T}] -> [{WorkerPid,T}]
@@ -71,7 +80,12 @@ worker(Master) ->
 %% spawn master
 init_pool() ->
     Nodes = [node() | nodes()],
-    Master = spawn_link(fun() -> process_flag(trap_exit, true), [initNode(Node,self(),1) || Node <- Nodes], master([]) end),
+    Master = spawn_link(
+        fun() -> 
+            process_flag(trap_exit, true), 
+            [initNode(Node,self(),1) || Node <- Nodes], 
+            master([]) 
+        end),
     register(pool,Master).
 
 %% initialize node: (Node,MasterPid,Int) -> [WorkerPid]
