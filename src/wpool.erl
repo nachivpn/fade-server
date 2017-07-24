@@ -51,7 +51,7 @@ master(WorkRegistry) ->
             receive
                 {get_work, WorkerPid} ->
                     {DeadWorkerPid,T} = proplists:lookup(DeadWorkerPid,WorkRegistry),
-                    WorkRegistry_ = lists:delete({DeadWorkerPid,T}),
+                    WorkRegistry_ = lists:delete({DeadWorkerPid,T},WorkRegistry),
                     WorkerPid ! {new_work, T#task.work},
                     WorkRegistry__ = [ {WorkerPid, T} | WorkRegistry_ ],
                     master(WorkRegistry__)
@@ -71,9 +71,8 @@ worker(Master) ->
 %% spawn master
 init_pool() ->
     Nodes = [node() | nodes()],
-    Master = spawn_link(fun() -> process_flag(trap_exit, true), master([]) end),
-    register(pool,Master),
-    [initNode(Node,Master,10) || Node <- Nodes].
+    Master = spawn_link(fun() -> process_flag(trap_exit, true), [initNode(Node,self(),1) || Node <- Nodes], master([]) end),
+    register(pool,Master).
 
 %% initialize node: (Node,MasterPid,Int) -> [WorkerPid]
 initNode(Node,Master,WorkerSize) -> [spawn_worker(Node,Master) || _ <- lists:seq(1,WorkerSize)].
