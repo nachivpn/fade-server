@@ -1,34 +1,37 @@
 -module(fade_server).
--compile(export_all).
-
-% -export([newtask/3,result/3,command/3,hello/3]).
-
-newtask(Sid, Env, In) ->
-    {struct,[{"main_key",MainKey},{"tar_key",TarKey},{"module",Module},{"ser_key",SerKey}]} = mochijson:decode(In),
-    TId = wpool:submit(work(TarKey,MainKey,Module,SerKey)),
-    RespStr = format("{\"tid\" : \"~s\"}",[TId]),
-    mod_esi:deliver(Sid, [RespStr]).
+-export([result/3,command/3,pytask/3]).
 
 result(Sid,Env,In) ->
     {struct,[{"tid",TId}]} = mochijson:decode(In),
     Result = wpool:get_result(TId),
-    RespStr = format("{\"result\" : \"~s\"}",[Result]),
+    RespStr = resultResp(Result),
     mod_esi:deliver(Sid, [RespStr]).
 
 command(Sid,Env,In) ->
     {struct,[{"command",Cmd}]} = mochijson:decode(In),
     TId = wpool:submit(fun() ->os:cmd(Cmd) end),
-    RespStr = format("{\"tid\" : \"~s\"}",[TId]),
+    RespStr = tidResp(TId),
     mod_esi:deliver(Sid, [RespStr]).
 
-hello(Sid, Env, In) ->
-    mod_esi:deliver(Sid, ["hello"]).
+%%%%
+%% Language Plugins
+%%%%
 
-work(TarKey, MainKey, Module, SerKey) ->
-    fun() ->
-        OutSerKey = lists:concat([util:uuid(),".py"]),
-        os:cmd(lists:concat(["./deploy.sh ", TarKey, " ", MainKey, " ", Module, " ", SerKey, " ", OutSerKey]))
-    end.
+pytask(Sid, Env, In) ->
+    TId = wpool:submit(fade_py:work(In)),
+    RespStr = tidResp(TId),
+    mod_esi:deliver(Sid, [RespStr]).
 
-format(Str,Value) ->
-    lists:flatten(io_lib:format(Str,Value)).
+% jtask(Sid, Env, In) -> undefined.
+
+% htask(Sid, Env, In) -> undefined.
+
+%%%%
+%% Response utility
+%%%%
+
+resultResp(Result) -> singleResp("result",Result).
+
+tidResp(TId) -> singleResp("tid",TId).
+
+singleResp(Field,Value) -> util:format("{\"~s\" : \"~s\"}",[Field,Value]).

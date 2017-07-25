@@ -8,3 +8,5 @@ get_pid(TId) -> list_to_pid(TId).
 upid(Pid) -> erlang:phash2({node(),Pid}).
 
 uuid() -> erlang:phash2({node(),self(), now()}).
+
+format(Str,Value) -> lists:flatten(io_lib:format(Str,Value)).

@@ -21,7 +21,7 @@ start(_StartType, _StartArgs) ->
     wpool:init_pool(),
     inets:start(),
     {Httpd_State,Httpd_Pid} = inets:start(httpd, [{port, 8099}, {server_name, "localhost"}, {document_root, "."}, 
-        {modules,[mod_esi]},{server_root, "."}, {erl_script_alias, {"/api", [fade_server, io]}}]),
+        {modules,[mod_esi]},{server_root, "."}, {erl_script_timeout, 1800}, {erl_script_alias, {"/api", [fade_server, io]}}]),
     X.
 
 %%--------------------------------------------------------------------
