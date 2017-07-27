@@ -18,6 +18,7 @@
 
 start(_StartType, _StartArgs) ->
     X = fade_server_sup:start_link(),
+    c:nl(wpool),
     wpool:init_pool(),
     inets:start(),
     {Httpd_State,Httpd_Pid} = inets:start(httpd, [{port, 8099}, {server_name, "localhost"}, {document_root, "."}, 
